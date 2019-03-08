@@ -1,0 +1,116 @@
+git:分布式版本控制系统
+集中式版本控制系统：版本库集中在中央服务器，从中央库取得最新的版本，需要联网
+分布式：每个人的电脑上都是一个完整的版本库，工作不需要联网，多人协作：把各自的修改推送给对方
+分布式版本控制系统通常也有一台充当中央服务器的电脑，但这个服务器的作用仅仅是方便交换大家的修改，没有它大家一样干活，指示交换修改不方便
+版本控制系统，只能跟踪文本文件的改动，比如txt文件，网页，所有的程序代码等
+在Git中，用head表示当前版本
+git reset --hard commit_id:允许我们在版本的历史之间穿梭
+Git log可以查看提交历史，以便决定回退到哪个版本
+重返未来，用Git reflog查看命令历史
+git add命令实际上就是把要提交的所有修改放到暂存区，然后执行Git commit就可以一次性把暂存区的所有修改提交到分支
+Git跟踪并管理的是修改，而不是文件，新增一行，这就是修改，删除了一行，也是一个修改
+Git diff 用来查看工作区和版本库中最新版本的区别
+git checkout -- readme.txt 意思就是把readme.txt文件在工作区的修改全部撤销
+两种情况：
+一种是readme.txt自修改后还没有被放到暂存区，现在，撤销修改就回到和版本库一模一样的状态
+一种是readme.txt已经添加到暂存区后，又做修改，现在，撤销修改就回到添加到暂存区后的状态
+cat readme.txt
+查看内容
+Git reset HEAD <file>可以把暂存区的修改撤销掉，重新放回工作区
+Git reset --hard ID ：回退到上一个版本
+当前最新版本 HEAD
+上一个版本 HEAD^
+当已经提交修改后，版本回退是有条件的，就是还没有把自己的本地版本库推送到远程。
+场景1：当你改乱了工作区某个文件的内容，想直接丢弃工作区的修改时，用命令git checkout -- file。
+
+场景2：当你不但改乱了工作区某个文件的内容，还添加到了暂存区时，想丢弃修改，分两步，第一步用命令git reset HEAD <file>，就回到了场景1，第二步按场景1操作。
+
+场景3：已经提交了不合适的修改到版本库时，想要撤销本次提交，参考版本回退一节，不过前提是没有推送到远程库。
+git checkout -- <file>就是用版本库里的版本替换工作区的版本，无论工作区是修改还是删除，都可以一键还原
+GitHUb提供Git仓库托管服务
+git push origin master
+1.关联远程库：
+ git remote add origin git@github.com:michaelliao/learngit.git
+2.关联后，使用命令 git push -u origin master第一次推送master分支的所有内容
+此后每次本地提交，可以使用命令 git push origin master
+从零开发,最好的方式是先创建远程库，然后，从远程库克隆
+git checkout -b dev:表示创建并切换
+相当于：
+git branch dev
+git checkout dev
+git branch:列出所有分支，在当前分支前面加一个*号
+cd..:回退目录
+ls:列出当前目录中的所有文件
+mkdir:新建一个目录
+Windows下修改Git Bash 默认路径
+
+安装好Git工具后，找到桌面或者win8的开始菜单下找到Git Bash 快捷方式
+
+选中Git Bash图标，右键，选中“属性”，
+
+去掉--cd-to-home，修改“起始位置”为自定义的git 本地仓库的路径，如：F:\Workspace\KYGitLabel
+
+再次打开Git Bash时已经修改了默认路径
+
+Git CMD 也如上修改，将快捷方式中路径修改为自定义路径即可，这样每次打开Git Bash 和Git CMD就自己进入本地的Git Repository里面了。
+Git checkout master:切换回master分支
+Git merge Dev：合并分支到当前分支
+删除分支： Git branch -d<name>
+git push origin master:本地库的修改推送到远程库中
+Git用<<<<<< ====   >>>>>标记不同分支内容
+分支策略：master分支应该是非常稳定的，也就是仅用来发布新版本，平时不能在上面干活
+干活都在Dev分支上
+假如当前 Dev分支上的活没干完，而需要修复bug:
+Git stash:将 当前工作现场存储起来
+git checkout master:假定需要在master分支上修复，就从master创建临时分支：
+git checkout -b issue-101
+多人协作，并不一定把本地分支往远程推送：
+master分支是主干分支，需要时刻与远程同步
+dev 分支是开发分支，团队所有成员都需要在上面工作，所以也需要与远程同步
+bug分支只用于在本地修复bug,没必要推到远程
+别人从远程库clone时，默认情况下，小伙伴只能看到本地的master分支
+如果要在Dev分支上开发，就必须创建origin的Dev分支到本地，则用该命令创建本地Dev分支:
+git checkout -b dev origin/dev
+现在，就可以在dev分支上继续修改，并且时不时把Dev分支push到远程:
+git add env.txt
+git commit -m "add env"
+git push origin dev
+若碰巧此时自己也对同样的文件进行了修改，并试图推送：
+git add env.txt
+git commit -m "add new env"
+git push origin dev
+则会推送失败，因为小伙伴的最新提交和本人试图推送的提交有冲突，解决方法：
+git branch --set-upstream-to=origin/dev dev
+git pull
+合并冲突：需要手动解决，解决方法和分支管理中的解决冲突方法完全一样
+最好的办法是get pull以后再进行修改合并？
+因此，多人协作的工作模式通常是这样：
+
+首先，可以试图用git push origin <branch-name>推送自己的修改；
+
+如果推送失败，则因为远程分支比你的本地更新，需要先用git pull试图合并；
+
+如果合并有冲突，则解决冲突，并在本地提交；
+
+没有冲突或者解决掉冲突后，再用git push origin <branch-name>推送就能成功！
+
+如果git pull提示no tracking information，则说明本地分支和远程分支的链接关系没有创建，用命令git branch --set-upstream-to <branch-name> origin/<branch-name>。
+
+这就是多人协作的工作模式，一旦熟悉了，就非常简单。
+rebase操作：
+
+----------
+git add readme.txt
+git commit -m "fix bug 101"
+git checkout master
+git merge --no-ff -m “merge bug fix 101" issue-101
+git checkout dev
+git stash apply(需要用Git stash drop来删除stash中的内容)（或 Git stash pop）
+feature分支：
+git checkout -b feature-vulcan
+git add vulcan.py
+git commit -m "add feature vulcan"
+git chechout dev
+git branch -d feature-vulcan
+git branch -D feature-vulcan(丢弃没有被合并过的分支)
+
